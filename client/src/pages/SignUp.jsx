@@ -6,28 +6,27 @@ import api_url from "../api";
 const SignUp = () => {
   const navigate = useNavigate();
   const api = api_url;
-  const [formData, setFormData] = useState({});
   const [errorMessage, setErrorMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-
-  const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.id]: e.target.value.trim() });
-  };
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!formData.username || !formData.email || !formData.password) {
+    if (!username || !email || !password) {
       return setErrorMessage("Please fill out all fields!");
     }
 
     try {
       setLoading(true);
       setErrorMessage(null);
-      const res = await fetch(`${api}/auth/signup`, {
+      const newUser = { username, email, password };
+      const res = await fetch(`${api}/auth/sign-up`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(newUser),
       });
       const data = await res.json();
       if (data.success === false) {
@@ -44,7 +43,10 @@ const SignUp = () => {
     }
   };
 
-  console.log(formData);
+  setTimeout(() => {
+    setErrorMessage(null);
+  }, 10000);
+
   return (
     <div className="min-h-screen mt-20">
       <div className="md:flex-row p-3 max-w-5xl mx-auto flex flex-col md:items-center gap-6">
@@ -86,7 +88,7 @@ const SignUp = () => {
                 type="text"
                 placeholder="Username"
                 id="username"
-                onChange={handleChange}
+                onChange={(e) => setUsername(e.target.value.trim())}
               />
             </div>
 
@@ -96,7 +98,7 @@ const SignUp = () => {
                 type="email"
                 placeholder="Email"
                 id="email"
-                onChange={handleChange}
+                onChange={(e) => setEmail(e.target.value.trim())}
               />
             </div>
 
@@ -106,7 +108,7 @@ const SignUp = () => {
                 type="password"
                 placeholder="Password"
                 id="password"
-                onChange={handleChange}
+                onChange={(e) => setPassword(e.target.value.trim())}
               />
             </div>
             <Button
