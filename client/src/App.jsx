@@ -7,7 +7,7 @@ import SignUp from "./pages/SignUp.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import Projects from "./pages/Projects.jsx";
 import Header from "./components/Header.jsx";
-import Footer from "./components/Footer.jsx";
+import FooterComp from "./components/FooterComp.jsx";
 
 function App() {
   return (
@@ -21,7 +21,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/projects" element={<Projects />} />
       </Routes>
-      <Footer />
+      <FooterComp />
     </BrowserRouter>
   );
 }
