@@ -57,14 +57,25 @@ export const signIn = async (req, res, next) => {
       {
         id: validUser._id,
       },
-      process.env.jwt_secret_key
+      process.env.jwt_secret_key,
+      {
+        expiresIn: "2d",
+      }
     );
+
+    const tokenOptions = {
+      expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+      httpOnly: true,
+      sameSite: "None",
+      secure: true,
+    };
 
     const { password: pass, ...rest } = validUser._doc;
 
     res
       .status(200)
-      .cookie("access_token", token, { httpOnly: true })
+      .cookie("jwt", token, tokenOptions)
+      .header("Access-Control-Expose-Headers", "jwt")
       .json(rest);
   } catch (error) {
     next(error);
@@ -82,15 +93,21 @@ export const google = async (req, res, next) => {
         {
           id: user._id,
         },
-        process.env.jwt_secret_key
+        process.env.jwt_secret_key,
+        { expiresIn: "2h" }
       );
 
       const { password, ...rest } = user._doc;
+      const tokenOptions = {
+        expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+      };
       res
         .status(200)
-        .cookie("access_token", token, {
-          httpOnly: true,
-        })
+        .cookie("jwt", token, tokenOptions)
+        .header("Access-Control-Expose-Headers", "jwt")
         .json(rest);
     } else {
       const generatedPassword = Math.random().toString(36).slice(-8);
@@ -106,14 +123,20 @@ export const google = async (req, res, next) => {
       });
 
       await newUser.save();
-      const token = jwt.sign({ id: newUser._id }, process.env.jwt_secret_key);
+      const token = jwt.sign({ id: newUser._id }, process.env.jwt_secret_key, {
+        expiresIn: "2h",
+      });
       const { password, ...rest } = newUser._doc;
-
+      const tokenOptions = {
+        expires: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+        httpOnly: true,
+        sameSite: "None",
+        secure: true,
+      };
       res
         .status(200)
-        .cookie("access_token", token, {
-          httpOnly: true,
-        })
+        .cookie("jwt", token, tokenOptions)
+        .header("Access-Control-Expose-Headers", "jwt")
         .json(rest);
     }
   } catch (error) {

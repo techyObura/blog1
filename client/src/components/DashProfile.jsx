@@ -1,6 +1,6 @@
 import { Alert, Button, TextInput } from "flowbite-react";
 import React, { useEffect, useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import {
   getDownloadURL,
   getStorage,
@@ -10,14 +10,22 @@ import {
 import { app } from "../firebase";
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
+import {
+  updateFailure,
+  updateStart,
+  updateSuccess,
+} from "../redux/slice/userSlice/userSlice";
+import api_url from "../api";
 
 const DashProfile = () => {
+  const dispatch = useDispatch();
   const { currentUser } = useSelector((state) => state.user);
   const [imageFile, setImageFile] = useState(null);
   const [imageFileUrl, setImageFileUrl] = useState(null);
   const [imageFileUploadingProgress, setImageFileUploadingProgress] =
     useState(null);
   const [imageFileUploadError, setImageFileUploadError] = useState(null);
+  const [formData, setFormData] = useState({});
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];
@@ -75,6 +83,7 @@ const DashProfile = () => {
       () => {
         getDownloadURL(uploadTask.snapshot.ref).then((downloadURL) => {
           setImageFileUrl(downloadURL);
+          setFormData({ ...formData, profilePicture: downloadURL });
         });
       }
     );
@@ -85,10 +94,43 @@ const DashProfile = () => {
       setImageFileUploadingProgress(null);
     }, 2000);
   }
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.id]: e.target.value });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (Object.keys(formData).length === 0) {
+      return;
+    }
+
+    try {
+      dispatch(updateStart());
+      const res = await fetch(`${api_url}/user/update/${currentUser._id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        credentials: "include",
+        body: JSON.stringify(formData),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        dispatch(updateFailure(data.message));
+      } else {
+        dispatch(updateSuccess(data));
+      }
+    } catch (error) {
+      dispatch(updateFailure(error.message));
+    }
+  };
   return (
     <div className=" max-w-lg mx-auto p-3 w-full">
       <h3 className="my-7 text-center font-semibold text-3xl">Profile</h3>
-      <form className="flex flex-col">
+      <form className="flex flex-col" onSubmit={handleSubmit}>
         <input
           type="file"
           accept="image/*"
@@ -140,14 +182,21 @@ const DashProfile = () => {
             id="username"
             placeholder="Username"
             defaultValue={currentUser.username}
+            onChange={handleChange}
           />
           <TextInput
             type="email"
             id="email"
             placeholder="Email"
             defaultValue={currentUser.email}
+            onChange={handleChange}
           />
-          <TextInput type="password" id="password" placeholder="Password" />
+          <TextInput
+            type="password"
+            id="password"
+            placeholder="Password"
+            onChange={handleChange}
+          />
         </div>
         <Button
           type="submit"

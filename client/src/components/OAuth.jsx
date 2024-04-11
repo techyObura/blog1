@@ -24,6 +24,7 @@ const OAuth = () => {
         headers: {
           "Content-Type": "application/json",
         },
+        credentials: "include",
         body: JSON.stringify({
           name: resultsFromGoogle.user.displayName,
           email: resultsFromGoogle.user.email,

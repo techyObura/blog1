@@ -5,12 +5,15 @@ import userRoutes from "./routes/user.route.js";
 import cors from "cors";
 import authRoutes from "./routes/auth.router.js";
 import cookieParser from "cookie-parser";
+import credentials from "./config/credentials.js";
+import corsOptions from "./config/corsOptions.js";
 
 const app = express();
 const port = 3030;
 app.use(express.json());
-app.use(cors());
 app.use(cookieParser());
+app.use(credentials);
+app.use(cors(corsOptions));
 
 dotenv.config();
 mongoose
