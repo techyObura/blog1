@@ -1,16 +1,7 @@
 import { errorHandler } from "./error.js";
 import jwt from "jsonwebtoken";
 
-/* export const verifyUser = (req, res, next) => {
-  const authHeader = req.headers["authorization"];
-
-  if (!authHeader)
-    return next(errorHandler(401, "Invalid authorization header"));
-
-  const token = authHeader.split(" ")[1];
-
-    const token = req.cookies.jwt; 
-
+export const verifyUser = (req, res, next) => {
   if (!token) {
     console.log("Request Cookies:", req.cookies);
     return next(errorHandler(400, "Unauthorized level 1"));
@@ -25,7 +16,8 @@ import jwt from "jsonwebtoken";
 
     next();
   });
-}; */
+}; /*
+/* 
 
 export const verifyUser = (req, res, next) => {
   const token = req.header("jwt");
@@ -43,7 +35,7 @@ export const verifyUser = (req, res, next) => {
   }
 };
 
-/* 
+ */
 function verifyAccessToken(token) {
   const secret = process.env.jwt_secret_key;
 
@@ -54,4 +46,3 @@ function verifyAccessToken(token) {
     return { success: false, error: error.message };
   }
 }
- */
